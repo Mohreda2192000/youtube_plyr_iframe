@@ -60,12 +60,12 @@ class _MobileYoutubePlayerState extends State<RawYoutubePlayer>
     super.initState();
     _webController = Completer();
     controller = widget.controller;
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -285,11 +285,22 @@ class _MobileYoutubePlayerState extends State<RawYoutubePlayer>
   String get player => '''
     <!DOCTYPE html>
     <body>
-         ${youtubeIFrameTag(controller)}
+        ${youtubeIFrameTag(controller)}
         <script>
             $initPlayerIFrame
             var player;
             var timerId;
+
+            // Prevent context menu (right-click) from opening
+            document.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+            });
+
+            // Prevent text selection
+            document.addEventListener('selectstart', function(event) {
+                event.preventDefault();
+            });
+
             function onYouTubeIframeAPIReady() {
                 player = new YT.Player('player', {
                     events: {
@@ -330,7 +341,8 @@ class _MobileYoutubePlayerState extends State<RawYoutubePlayer>
             $youtubeIFrameFunctions
         </script>
     </body>
-  ''';
+''';
+
 
   String get userAgent => controller.params.desktopMode
       ? 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15'
